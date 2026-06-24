@@ -45,6 +45,7 @@
   --color-surface-container-highest: #dce8b1;
   --color-on-surface-variant: #41493f;
   --color-outline-variant: #c0c9bc;
+  --color-outline: #71796e;
   --color-background: #f4ffc9;
   --color-foreground: #171e00;
 
@@ -117,4 +118,34 @@ body {
 ::selection {
   background: color-mix(in srgb, var(--primary-container) 35%, transparent);
   color: var(--on-surface);
+}
+
+.auth-fade-in {
+  animation: authFadeInUp 0.6s ease-out forwards;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+@keyframes authFadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.auth-card {
+  box-shadow: 0 4px 20px -2px rgba(28, 82, 83, 0.08);
+}
+
+.auth-card:hover {
+  box-shadow: 0 12px 32px -4px rgba(28, 82, 83, 0.12);
+  border-color: var(--surface-container-high);
+}
+
+.auth-card-soft {
+  box-shadow: 0 4px 20px -2px rgba(28, 82, 83, 0.08);
+}
+
+.auth-input-focus:focus {
+  box-shadow: 0 0 0 4px rgba(48, 107, 52, 0.1);
 }

@@ -1,6 +1,4 @@
 import { Plus_Jakarta_Sans, Inter } from "next/font/google";
-import Navbar from "@/components/shared/Navbar";
-import Footer from "@/components/shared/Footer";
 import Providers from "@/components/providers/Providers";
 import "./globals.css";
 
@@ -28,12 +26,8 @@ export default function RootLayout({ children }) {
       lang="en"
       className={`${plusJakarta.variable} ${inter.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col bg-surface pt-20 text-on-surface">
-        <Providers>
-          <Navbar />
-          <main className="flex-1">{children}</main>
-          <Footer />
-        </Providers>
+      <body className="min-h-full bg-surface text-on-surface">
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
