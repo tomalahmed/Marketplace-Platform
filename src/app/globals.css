@@ -21,6 +21,8 @@
   --surface-container-highest: #dce8b1;
   --on-surface-variant: #41493f;
   --outline-variant: #c0c9bc;
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
   --background: #f4ffc9;
   --foreground: #171e00;
 }
@@ -45,6 +47,8 @@
   --color-surface-container-highest: #dce8b1;
   --color-on-surface-variant: #41493f;
   --color-outline-variant: #c0c9bc;
+  --color-error: #ba1a1a;
+  --color-error-container: #ffdad6;
   --color-outline: #71796e;
   --color-background: #f4ffc9;
   --color-foreground: #171e00;
