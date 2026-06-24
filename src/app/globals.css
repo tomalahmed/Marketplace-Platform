@@ -1,0 +1,120 @@
+@import url("https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0");
+@import "tailwindcss";
+
+:root {
+  --on-surface: #171e00;
+  --primary: #15521e;
+  --primary-container: #306b34;
+  --primary-fixed: #b1f3ad;
+  --on-primary: #ffffff;
+  --on-primary-container: #a9e9a5;
+  --secondary: #336667;
+  --on-secondary: #ffffff;
+  --tertiary-fixed: #c8f07d;
+  --on-tertiary-fixed: #131f00;
+  --tertiary-fixed-dim: #add464;
+  --surface: #f4ffc9;
+  --surface-container-lowest: #ffffff;
+  --surface-container-low: #eefac1;
+  --surface-container: #e8f4bc;
+  --surface-container-high: #e2eeb6;
+  --surface-container-highest: #dce8b1;
+  --on-surface-variant: #41493f;
+  --outline-variant: #c0c9bc;
+  --background: #f4ffc9;
+  --foreground: #171e00;
+}
+
+@theme inline {
+  --color-on-surface: #171e00;
+  --color-primary: #15521e;
+  --color-primary-container: #306b34;
+  --color-primary-fixed: #b1f3ad;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #a9e9a5;
+  --color-secondary: #336667;
+  --color-on-secondary: #ffffff;
+  --color-tertiary-fixed: #c8f07d;
+  --color-on-tertiary-fixed: #131f00;
+  --color-tertiary-fixed-dim: #add464;
+  --color-surface: #f4ffc9;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eefac1;
+  --color-surface-container: #e8f4bc;
+  --color-surface-container-high: #e2eeb6;
+  --color-surface-container-highest: #dce8b1;
+  --color-on-surface-variant: #41493f;
+  --color-outline-variant: #c0c9bc;
+  --color-background: #f4ffc9;
+  --color-foreground: #171e00;
+
+  --font-sans: var(--font-plus-jakarta);
+  --font-label: var(--font-inter);
+
+  --max-width-container-max: 1280px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 40px;
+  --spacing-gutter: 24px;
+
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.2;
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 1.25;
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 1.4;
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.5;
+  --text-label-md: 14px;
+  --text-label-md--line-height: 1.4;
+  --text-label-sm: 12px;
+  --text-label-sm--line-height: 1.2;
+}
+
+body {
+  background: var(--surface);
+  color: var(--on-surface);
+  font-family: var(--font-plus-jakarta), system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.material-symbols-outlined {
+  font-family: "Material Symbols Outlined";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 24px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-smoothing: antialiased;
+  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+}
+
+.card-shadow {
+  box-shadow: 0 4px 20px -2px rgba(28, 82, 83, 0.08);
+}
+
+.card-hover:hover {
+  box-shadow: 0 8px 30px -4px rgba(28, 82, 83, 0.12);
+  border-color: var(--primary-container);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--primary-container) 35%, transparent);
+  color: var(--on-surface);
+}
