@@ -26,13 +26,14 @@ async function fetchFeaturedPrompts() {
   return data;
 }
 
-export function usePrompts(filters = {}) {
+export function usePrompts(filters = {}, options = {}) {
   const queryFilters = { ...DEFAULT_PROMPT_FILTERS, ...filters };
 
   return useQuery({
     queryKey: ["prompts", queryFilters],
     queryFn: () => fetchPrompts(queryFilters),
     placeholderData: (previousData) => previousData,
+    enabled: options.enabled ?? true,
   });
 }
 
