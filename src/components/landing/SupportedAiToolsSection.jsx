@@ -20,6 +20,7 @@ const tools = [
   { name: "GitHub Copilot", icon: Code2, color: "bg-slate-100 text-slate-700" },
   { name: "DALL-E", icon: Brush, color: "bg-pink-100 text-pink-700" },
   { name: "Stable Diffusion", icon: Zap, color: "bg-indigo-100 text-indigo-700" },
+  { name: "Cursor", icon: Code2 , color: "bg-gray-100 text-gray-700" },
 ];
 
 export default function SupportedAiToolsSection() {

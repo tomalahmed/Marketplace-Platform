@@ -16,6 +16,10 @@ export function usePrompt(id) {
     queryKey: ["prompt", id],
     queryFn: () => fetchPromptById(id),
     enabled: Boolean(id),
+    retry: 2,
+    retryDelay: 1000,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
   });
 }
 

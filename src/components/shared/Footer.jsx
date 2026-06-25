@@ -7,6 +7,7 @@ const footerSections = [
       { href: "/prompts", label: "Marketplace" },
       { href: "/#why-choose-us", label: "Features" },
       { href: "/pricing", label: "Premium" },
+      { href: "/demo", label: "Demo" },
       { href: "#", label: "API Docs" },
     ],
   },
@@ -23,6 +24,7 @@ const footerSections = [
   {
     title: "Support",
     links: [
+      { href: "/demo", label: "Demo Accounts" },
       { href: "#", label: "Help Center" },
       { href: "#", label: "Contact Us" },
       { href: "#", label: "Report Prompt" },

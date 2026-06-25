@@ -7,20 +7,36 @@ import MarketplaceFilterSidebar from "@/components/prompts/MarketplaceFilterSide
 import PromptGrid from "@/components/prompts/PromptGrid";
 import Pagination from "@/components/ui/Pagination";
 import usePrompts from "@/hooks/usePrompts";
+import { getApiErrorMessage } from "@/lib/apiErrors";
 import {
   DEFAULT_PROMPT_FILTERS,
   SORT_OPTIONS,
 } from "@/lib/promptConstants";
 
+function filtersFromSearchParams(searchParams) {
+  return {
+    ...DEFAULT_PROMPT_FILTERS,
+    search: searchParams.get("search") || "",
+    category: searchParams.get("category") || "",
+    aiTool: searchParams.get("aiTool") || "",
+    difficulty: searchParams.get("difficulty") || "",
+    sort: searchParams.get("sort") || DEFAULT_PROMPT_FILTERS.sort,
+    page: Math.max(Number(searchParams.get("page")) || 1, 1),
+  };
+}
+
 function PromptsPageContent() {
   const searchParams = useSearchParams();
-  const initialSearch = searchParams.get("search") || "";
+  const initialFilters = filtersFromSearchParams(searchParams);
 
-  const [searchInput, setSearchInput] = useState(initialSearch);
-  const [filters, setFilters] = useState({
-    ...DEFAULT_PROMPT_FILTERS,
-    search: initialSearch,
-  });
+  const [searchInput, setSearchInput] = useState(initialFilters.search);
+  const [filters, setFilters] = useState(initialFilters);
+
+  useEffect(() => {
+    const next = filtersFromSearchParams(searchParams);
+    setFilters(next);
+    setSearchInput(next.search);
+  }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -33,7 +49,7 @@ function PromptsPageContent() {
     return () => clearTimeout(timer);
   }, [searchInput]);
 
-  const { data, isLoading, isError, isFetching } = usePrompts(filters);
+  const { data, isLoading, isError, isFetching, error, refetch } = usePrompts(filters);
   const prompts = data?.data || [];
   const pagination = data?.pagination;
   const totalResults = data?.total ?? 0;
@@ -106,6 +122,11 @@ function PromptsPageContent() {
             prompts={prompts}
             isLoading={isLoading}
             isError={isError}
+            errorMessage={getApiErrorMessage(
+              error,
+              "Failed to load prompts from MongoDB."
+            )}
+            onRetry={refetch}
             emptyMessage="No prompts match your filters. Try adjusting search or filters."
           />
 

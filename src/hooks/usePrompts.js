@@ -1,6 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 import axiosInstance from "@/lib/axiosInstance";
 import { DEFAULT_PROMPT_FILTERS } from "@/lib/promptConstants";
+import { dedupePromptsById } from "@/lib/promptUtils";
+
+function normalizePromptsResponse(data) {
+  if (!data) return data;
+  return {
+    ...data,
+    data: dedupePromptsById(data.data || []),
+  };
+}
 
 function buildPromptParams(filters = {}) {
   const params = new URLSearchParams();
@@ -32,8 +41,13 @@ export function usePrompts(filters = {}, options = {}) {
   return useQuery({
     queryKey: ["prompts", queryFilters],
     queryFn: () => fetchPrompts(queryFilters),
+    select: normalizePromptsResponse,
     placeholderData: (previousData) => previousData,
     enabled: options.enabled ?? true,
+    retry: 2,
+    retryDelay: 1000,
+    refetchOnWindowFocus: true,
+    staleTime: 30 * 1000,
   });
 }
 
@@ -41,6 +55,10 @@ export function useFeaturedPrompts() {
   return useQuery({
     queryKey: ["prompts", "featured"],
     queryFn: fetchFeaturedPrompts,
+    select: normalizePromptsResponse,
+    retry: 2,
+    retryDelay: 1000,
+    refetchOnWindowFocus: true,
     staleTime: 2 * 60 * 1000,
   });
 }

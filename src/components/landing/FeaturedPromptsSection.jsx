@@ -6,10 +6,11 @@ import FadeUp, { StaggerContainer, StaggerItem } from "@/components/shared/FadeU
 import Spinner from "@/components/ui/Spinner";
 import FeaturedPromptCard from "@/components/landing/FeaturedPromptCard";
 import { useFeaturedPrompts } from "@/hooks/usePrompts";
+import { getApiErrorMessage } from "@/lib/apiErrors";
 import { dedupePromptsById } from "@/lib/promptUtils";
 
 export default function FeaturedPromptsSection() {
-  const { data, isLoading, isError } = useFeaturedPrompts();
+  const { data, isLoading, isError, error, refetch } = useFeaturedPrompts();
   const prompts = dedupePromptsById((data?.data || []).slice(0, 6));
 
   return (
@@ -40,10 +41,20 @@ export default function FeaturedPromptsSection() {
 
       {isError && (
         <FadeUp>
-          <div className="rounded-2xl border border-outline-variant/20 bg-white p-10 text-center">
-            <p className="text-on-surface-variant">
-              Unable to load featured prompts right now.
+          <div className="rounded-2xl border border-error/20 bg-error-container/30 p-10 text-center">
+            <p className="mb-4 text-on-surface-variant">
+              {getApiErrorMessage(
+                error,
+                "Unable to load featured prompts from the database."
+              )}
             </p>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="text-[14px] font-semibold text-primary-container hover:underline"
+            >
+              Retry
+            </button>
           </div>
         </FadeUp>
       )}

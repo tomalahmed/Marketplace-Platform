@@ -8,6 +8,7 @@ export default function PromptGrid({
   isLoading = false,
   isError = false,
   errorMessage = "Failed to load prompts.",
+  onRetry,
   emptyMessage = "No prompts found. Try adjusting your filters.",
   className,
 }) {
@@ -28,6 +29,15 @@ export default function PromptGrid({
         )}
       >
         <p className="text-[15px] font-medium text-on-surface">{errorMessage}</p>
+        {onRetry && (
+          <button
+            type="button"
+            onClick={() => onRetry()}
+            className="mt-4 text-[14px] font-semibold text-primary-container hover:underline"
+          >
+            Retry connection
+          </button>
+        )}
       </div>
     );
   }
