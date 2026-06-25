@@ -6,10 +6,11 @@ import FadeUp, { StaggerContainer, StaggerItem } from "@/components/shared/FadeU
 import Spinner from "@/components/ui/Spinner";
 import FeaturedPromptCard from "@/components/landing/FeaturedPromptCard";
 import { useFeaturedPrompts } from "@/hooks/usePrompts";
+import { dedupePromptsById } from "@/lib/promptUtils";
 
 export default function FeaturedPromptsSection() {
   const { data, isLoading, isError } = useFeaturedPrompts();
-  const prompts = (data?.data || []).slice(0, 6);
+  const prompts = dedupePromptsById((data?.data || []).slice(0, 6));
 
   return (
     <section className="py-16">

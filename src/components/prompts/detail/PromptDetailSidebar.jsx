@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { BookmarkPlus, Bot, Copy, Star } from "lucide-react";
+import { Bookmark, BookmarkPlus, Bot, Copy, Star } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { formatCopyCount } from "@/lib/promptConstants";
 
@@ -11,6 +11,7 @@ export default function PromptDetailSidebar({
   contentLocked,
   onCopy,
   onBookmark,
+  bookmarked = false,
   copyPending,
   similarPrompts,
   formatDate,
@@ -58,8 +59,12 @@ export default function PromptDetailSidebar({
             className="w-full"
             onClick={onBookmark}
           >
-            <BookmarkPlus className="h-4 w-4" strokeWidth={1.75} />
-            Save to Collection
+            {bookmarked ? (
+              <Bookmark className="h-4 w-4" strokeWidth={1.75} fill="currentColor" />
+            ) : (
+              <BookmarkPlus className="h-4 w-4" strokeWidth={1.75} />
+            )}
+            {bookmarked ? "Saved to Collection" : "Save to Collection"}
           </Button>
         </div>
       </section>

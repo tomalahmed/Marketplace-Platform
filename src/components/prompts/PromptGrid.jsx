@@ -1,6 +1,7 @@
 import PromptCard from "@/components/prompts/PromptCard";
 import Spinner from "@/components/ui/Spinner";
 import { cn } from "@/lib/cn";
+import { dedupePromptsById } from "@/lib/promptUtils";
 
 export default function PromptGrid({
   prompts = [],
@@ -31,7 +32,9 @@ export default function PromptGrid({
     );
   }
 
-  if (!prompts.length) {
+  const uniquePrompts = dedupePromptsById(prompts);
+
+  if (!uniquePrompts.length) {
     return (
       <div
         className={cn(
@@ -51,7 +54,7 @@ export default function PromptGrid({
         className
       )}
     >
-      {prompts.map((prompt) => (
+      {uniquePrompts.map((prompt) => (
         <PromptCard key={prompt._id} prompt={prompt} />
       ))}
     </div>

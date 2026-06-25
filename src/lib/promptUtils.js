@@ -1,3 +1,14 @@
+export function dedupePromptsById(items = []) {
+  const seen = new Set();
+
+  return items.filter((item) => {
+    const id = String(item?._id);
+    if (!id || seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+}
+
 export function getInitials(name = "") {
   return (
     name
@@ -30,16 +41,19 @@ export function extractPlaceholders(content = "") {
 }
 
 export function isPromptContentLocked(prompt, user) {
-  if (!prompt?.contentLocked) return false;
-  if (!user) return true;
+  if (!prompt) return false;
 
   const creatorId =
     typeof prompt.creator === "object"
       ? prompt.creator?._id
       : prompt.creator;
 
-  const isOwner = creatorId && String(creatorId) === String(user.id || user._id);
-  const isAdmin = user.role === "admin";
+  const isOwner =
+    user && creatorId && String(creatorId) === String(user.id || user._id);
+  const isAdmin = user?.role === "admin";
 
-  return !isOwner && !isAdmin && !user.isPremium;
+  if (isOwner || isAdmin) return false;
+  if (prompt.visibility === "private" && !user?.isPremium) return true;
+
+  return Boolean(prompt.contentLocked);
 }

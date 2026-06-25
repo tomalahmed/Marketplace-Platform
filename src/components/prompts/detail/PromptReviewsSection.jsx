@@ -32,8 +32,10 @@ export default function PromptReviewsSection({
   contentLocked,
   StarRating,
 }) {
-  const averageRating = prompt.averageRating || 4.8;
-  const reviewCount = prompt.reviewCount || 42;
+  const averageRating = prompt.averageRating || 0;
+  const reviewCount = prompt.reviewCount || 0;
+  const reviews =
+    reviewCount > 0 ? PLACEHOLDER_REVIEWS : [];
 
   const handleWriteReview = () => {
     if (contentLocked) {
@@ -49,9 +51,9 @@ export default function PromptReviewsSection({
         <h2 className="text-[24px] font-semibold text-primary">Reviews & Ratings</h2>
         <div className="flex items-center gap-2">
           <span className="text-[24px] font-bold text-on-surface">
-            {averageRating.toFixed(1)}
+            {reviewCount > 0 ? averageRating.toFixed(1) : "—"}
           </span>
-          <StarRating rating={averageRating} />
+          {reviewCount > 0 && <StarRating rating={averageRating} />}
           <span className="text-[12px] text-on-surface-variant">
             ({reviewCount} reviews)
           </span>
@@ -59,7 +61,12 @@ export default function PromptReviewsSection({
       </div>
 
       <div className="space-y-6">
-        {PLACEHOLDER_REVIEWS.map((review) => (
+        {reviews.length === 0 ? (
+          <p className="text-[15px] text-on-surface-variant">
+            No reviews yet. Be the first to share feedback after using this prompt.
+          </p>
+        ) : (
+          reviews.map((review) => (
           <article
             key={review.id}
             className="border-b border-outline-variant/20 pb-6 last:border-0 last:pb-0"
@@ -86,7 +93,8 @@ export default function PromptReviewsSection({
               {review.comment}
             </p>
           </article>
-        ))}
+          ))
+        )}
       </div>
 
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">

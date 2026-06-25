@@ -2,8 +2,10 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import {
+  ArrowLeft,
   BarChart3,
   Bookmark,
   Bot,
@@ -19,11 +21,13 @@ import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import PromptDetailSidebar from "@/components/prompts/detail/PromptDetailSidebar";
 import PromptReviewsSection from "@/components/prompts/detail/PromptReviewsSection";
+import ReportModal from "@/components/prompts/ReportModal";
 import useAuth from "@/hooks/useAuth";
 import { useIncrementCopy, usePrompt } from "@/hooks/usePrompt";
 import usePrompts from "@/hooks/usePrompts";
 import { formatCopyCount } from "@/lib/promptConstants";
 import {
+  dedupePromptsById,
   estimateTokenCount,
   extractPlaceholders,
   formatPromptDate,
@@ -57,7 +61,9 @@ export default function PromptDetailPage() {
   const params = useParams();
   const promptId = params?.id;
   const { user } = useAuth();
-  const { data, isLoading, isError } = usePrompt(promptId);
+  const [bookmarked, setBookmarked] = useState(false);
+  const [reportOpen, setReportOpen] = useState(false);
+  const { data, isLoading, isError, error } = usePrompt(promptId);
   const copyMutation = useIncrementCopy(promptId);
 
   const prompt = data?.data;
@@ -70,8 +76,8 @@ export default function PromptDetailPage() {
     { enabled: Boolean(prompt?.category) }
   );
 
-  const similarPrompts = (similarData?.data || [])
-    .filter((item) => item._id !== promptId)
+  const similarPrompts = dedupePromptsById(similarData?.data || [])
+    .filter((item) => String(item._id) !== String(promptId))
     .slice(0, 2);
 
   const placeholders = extractPlaceholders(prompt?.content || prompt?.contentPreview || "");
@@ -95,11 +101,16 @@ export default function PromptDetailPage() {
   };
 
   const handleBookmark = () => {
-    toast.info("Bookmark feature coming in Phase 3");
+    setBookmarked((prev) => !prev);
+    toast.info(
+      bookmarked
+        ? "Bookmark removed (Phase 3 will persist this)"
+        : "Prompt bookmarked (Phase 3 will persist this)"
+    );
   };
 
   const handleReport = () => {
-    toast.info("Report feature coming in Phase 3");
+    setReportOpen(true);
   };
 
   if (isLoading) {
@@ -111,11 +122,18 @@ export default function PromptDetailPage() {
   }
 
   if (isError || !prompt) {
+    const isNetworkError = !error?.response;
+    const message = error?.response?.data?.message;
+
     return (
       <div className="mx-auto max-w-2xl py-20 text-center">
-        <h1 className="mb-3 text-[24px] font-bold text-primary">Prompt not found</h1>
+        <h1 className="mb-3 text-[24px] font-bold text-primary">
+          {isNetworkError ? "Unable to reach server" : "Prompt not found"}
+        </h1>
         <p className="mb-6 text-on-surface-variant">
-          This prompt may have been removed or you do not have access.
+          {isNetworkError
+            ? "Start the API server (npm run dev) and ensure MongoDB Atlas allows your IP address."
+            : message || "This prompt may have been removed or you do not have access."}
         </p>
         <Link
           href="/prompts"
@@ -131,7 +149,16 @@ export default function PromptDetailPage() {
   const creatorRating = prompt.averageRating || 4.9;
 
   return (
-    <motion.div
+    <>
+      <Link
+        href="/prompts"
+        className="mb-6 inline-flex items-center gap-2 text-[14px] font-medium text-on-surface-variant transition-colors hover:text-primary"
+      >
+        <ArrowLeft className="h-4 w-4" strokeWidth={2} />
+        Back to Marketplace
+      </Link>
+
+      <motion.div
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
@@ -148,11 +175,21 @@ export default function PromptDetailPage() {
                 <button
                   type="button"
                   onClick={handleBookmark}
-                  className="rounded-full p-2 text-on-surface-variant transition-colors hover:bg-surface-container-high hover:text-primary"
-                  title="Bookmark"
-                  aria-label="Bookmark prompt"
+                  className={cn(
+                    "rounded-full p-2 transition-colors",
+                    bookmarked
+                      ? "bg-primary-container/15 text-primary-container"
+                      : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
+                  )}
+                  title={bookmarked ? "Remove bookmark" : "Bookmark"}
+                  aria-label={bookmarked ? "Remove bookmark" : "Bookmark prompt"}
+                  aria-pressed={bookmarked}
                 >
-                  <Bookmark className="h-5 w-5" strokeWidth={1.75} />
+                  <Bookmark
+                    className="h-5 w-5"
+                    strokeWidth={1.75}
+                    fill={bookmarked ? "currentColor" : "none"}
+                  />
                 </button>
                 <button
                   type="button"
@@ -329,11 +366,19 @@ export default function PromptDetailPage() {
           contentLocked={contentLocked}
           onCopy={handleCopy}
           onBookmark={handleBookmark}
+          bookmarked={bookmarked}
           copyPending={copyMutation.isPending}
           similarPrompts={similarPrompts}
           formatDate={formatPromptDate}
         />
       </div>
-    </motion.div>
+      </motion.div>
+
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        promptTitle={prompt.title}
+      />
+    </>
   );
 }
