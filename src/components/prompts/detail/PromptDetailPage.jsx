@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
@@ -23,6 +23,7 @@ import PromptDetailSidebar from "@/components/prompts/detail/PromptDetailSidebar
 import PromptReviewsSection from "@/components/prompts/detail/PromptReviewsSection";
 import ReportModal from "@/components/prompts/ReportModal";
 import useAuth from "@/hooks/useAuth";
+import { useBookmarkStatus, useToggleBookmark } from "@/hooks/useBookmark";
 import { useIncrementCopy, usePrompt } from "@/hooks/usePrompt";
 import usePrompts from "@/hooks/usePrompts";
 import { formatCopyCount } from "@/lib/promptConstants";
@@ -59,12 +60,16 @@ function StarRating({ rating, size = "md" }) {
 
 export default function PromptDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const promptId = params?.id;
   const { user } = useAuth();
-  const [bookmarked, setBookmarked] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const { data, isLoading, isError, error } = usePrompt(promptId);
+  const { data: bookmarkData } = useBookmarkStatus(promptId, { enabled: Boolean(user) });
+  const toggleBookmarkMutation = useToggleBookmark(promptId);
   const copyMutation = useIncrementCopy(promptId);
+
+  const bookmarked = bookmarkData?.bookmarked ?? false;
 
   const prompt = data?.data;
   const contentLocked = prompt ? isPromptContentLocked(prompt, user) : false;
@@ -100,16 +105,27 @@ export default function PromptDetailPage() {
     }
   };
 
-  const handleBookmark = () => {
-    setBookmarked((prev) => !prev);
-    toast.info(
-      bookmarked
-        ? "Bookmark removed (Phase 3 will persist this)"
-        : "Prompt bookmarked (Phase 3 will persist this)"
-    );
+  const handleBookmark = async () => {
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(`/prompts/${promptId}`)}`);
+      return;
+    }
+
+    if (toggleBookmarkMutation.isPending) return;
+
+    try {
+      await toggleBookmarkMutation.mutateAsync();
+    } catch {
+      // Toast handled in hook
+    }
   };
 
   const handleReport = () => {
+    if (!user) {
+      router.push(`/login?redirect=${encodeURIComponent(`/prompts/${promptId}`)}`);
+      return;
+    }
+
     setReportOpen(true);
   };
 
@@ -182,6 +198,7 @@ export default function PromptDetailPage() {
                       : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary"
                   )}
                   title={bookmarked ? "Remove bookmark" : "Bookmark"}
+                  disabled={toggleBookmarkMutation.isPending}
                   aria-label={bookmarked ? "Remove bookmark" : "Bookmark prompt"}
                   aria-pressed={bookmarked}
                 >
@@ -377,6 +394,7 @@ export default function PromptDetailPage() {
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
+        promptId={promptId}
         promptTitle={prompt.title}
       />
     </>

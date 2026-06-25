@@ -29,6 +29,34 @@ export function formatPromptDate(date) {
   }).format(new Date(date));
 }
 
+export function formatRelativeDate(date) {
+  if (!date) return "—";
+
+  const diffMs = Date.now() - new Date(date).getTime();
+  const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (days <= 0) return "Today";
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days} days ago`;
+  if (days < 30) return `${Math.floor(days / 7)} week${days >= 14 ? "s" : ""} ago`;
+
+  return formatPromptDate(date);
+}
+
+const AVATAR_COLORS = [
+  "bg-secondary-container text-on-secondary-container",
+  "bg-primary-container text-on-primary-container",
+  "bg-tertiary-container text-on-tertiary-container",
+];
+
+export function getAvatarColorClass(seed = "") {
+  const hash = String(seed)
+    .split("")
+    .reduce((sum, char) => sum + char.charCodeAt(0), 0);
+
+  return AVATAR_COLORS[hash % AVATAR_COLORS.length];
+}
+
 export function estimateTokenCount(text = "") {
   if (!text) return 0;
   return Math.max(1, Math.round(text.trim().split(/\s+/).length * 1.3));

@@ -5,8 +5,11 @@ import { toast } from "react-toastify";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import Select from "@/components/ui/Select";
+import { useSubmitReport } from "@/hooks/useReport";
+import { getApiErrorMessage } from "@/lib/apiErrors";
 
 const REPORT_REASONS = [
+  { value: "Inappropriate", label: "Inappropriate content" },
   { value: "Inaccurate", label: "Inaccurate content" },
   { value: "Spam", label: "Spam or misleading" },
   { value: "Offensive", label: "Offensive or harmful" },
@@ -14,26 +17,25 @@ const REPORT_REASONS = [
   { value: "Other", label: "Other" },
 ];
 
-export default function ReportModal({ open, onClose, promptTitle }) {
+export default function ReportModal({ open, onClose, promptId, promptTitle }) {
   const [reason, setReason] = useState(REPORT_REASONS[0].value);
   const [details, setDetails] = useState("");
-  const [submitting, setSubmitting] = useState(false);
+  const reportMutation = useSubmitReport(promptId);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSubmitting(true);
 
     try {
-      // Phase 3: POST /api/reports/:promptId
-      await new Promise((resolve) => setTimeout(resolve, 400));
+      await reportMutation.mutateAsync({
+        reason,
+        description: details,
+      });
       toast.success("Report submitted. Our team will review it shortly.");
       setDetails("");
       setReason(REPORT_REASONS[0].value);
       onClose();
-    } catch {
-      toast.error("Failed to submit report");
-    } finally {
-      setSubmitting(false);
+    } catch (error) {
+      toast.error(getApiErrorMessage(error, "Failed to submit report"));
     }
   };
 
@@ -78,8 +80,8 @@ export default function ReportModal({ open, onClose, promptTitle }) {
           <Button type="button" variant="outline" className="flex-1" onClick={onClose}>
             Cancel
           </Button>
-          <Button type="submit" className="flex-1" disabled={submitting}>
-            {submitting ? "Submitting..." : "Submit Report"}
+          <Button type="submit" className="flex-1" disabled={reportMutation.isPending}>
+            {reportMutation.isPending ? "Submitting..." : "Submit Report"}
           </Button>
         </div>
       </form>
