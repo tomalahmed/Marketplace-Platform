@@ -19,6 +19,7 @@
   --surface-container: #e8f4bc;
   --surface-container-high: #e2eeb6;
   --surface-container-highest: #dce8b1;
+  --surface-variant: #dce8b1;
   --on-surface-variant: #41493f;
   --outline-variant: #c0c9bc;
   --error: #ba1a1a;
@@ -45,6 +46,7 @@
   --color-surface-container: #e8f4bc;
   --color-surface-container-high: #e2eeb6;
   --color-surface-container-highest: #dce8b1;
+  --color-surface-variant: #dce8b1;
   --color-on-surface-variant: #41493f;
   --color-outline-variant: #c0c9bc;
   --color-error: #ba1a1a;

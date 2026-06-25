@@ -24,6 +24,7 @@ export default function Navbar() {
   const isActive = (href, exact) => {
     if (href === "/#top-creators") return false;
     if (exact) return pathname === "/";
+    if (href === "/prompts") return pathname === "/prompts" || pathname.startsWith("/prompts/");
     return pathname.startsWith(href);
   };
 
