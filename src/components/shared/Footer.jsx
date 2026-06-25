@@ -14,7 +14,8 @@ const footerSections = [
     title: "Community",
     links: [
       { href: "/#top-creators", label: "Top Creators" },
-      { href: "#", label: "Discussion" },
+      { href: "/#how-it-works", label: "How It Works" },
+      { href: "/#customer-reviews", label: "Reviews" },
       { href: "#", label: "Affiliate" },
       { href: "#", label: "Events" },
     ],
