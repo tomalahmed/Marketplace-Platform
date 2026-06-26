@@ -6,8 +6,21 @@ async function createCheckoutSession() {
   return data.data;
 }
 
+async function verifyCheckoutSession(sessionId) {
+  const { data } = await axiosInstance.post("/payments/verify-session", {
+    sessionId,
+  });
+  return data.data;
+}
+
 export function useCreateCheckoutSession() {
   return useMutation({
     mutationFn: createCheckoutSession,
+  });
+}
+
+export function useVerifyCheckoutSession() {
+  return useMutation({
+    mutationFn: verifyCheckoutSession,
   });
 }

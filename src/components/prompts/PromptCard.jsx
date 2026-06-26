@@ -1,9 +1,14 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { Bookmark, Copy } from "lucide-react";
+import { Bookmark, Copy, Crown, Lock } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
 import { formatCopyCount } from "@/lib/promptConstants";
+import {
+  getPromptPreviewText,
+  isProPrompt,
+  isPromptContentLocked,
+} from "@/lib/promptUtils";
 import { cn } from "@/lib/cn";
 
 function getInitials(name = "") {
@@ -24,7 +29,9 @@ export default function PromptCard({ prompt, className }) {
   const creatorPhoto =
     typeof prompt.creator === "object" ? prompt.creator?.photoURL : "";
 
-  const previewText = prompt.content || prompt.description || "";
+  const isPro = isProPrompt(prompt);
+  const contentLocked = isPromptContentLocked(prompt, user);
+  const previewText = getPromptPreviewText(prompt, user);
 
   const handleViewDetails = () => {
     const destination = `/prompts/${prompt._id}`;
@@ -37,10 +44,17 @@ export default function PromptCard({ prompt, className }) {
     router.push(destination);
   };
 
+  const actionLabel = !user
+    ? "Sign in to view"
+    : contentLocked
+      ? "View & unlock"
+      : "View Details";
+
   return (
     <article
       className={cn(
         "group flex h-full cursor-pointer flex-col rounded-[1.5rem] border border-outline-variant/20 bg-white p-6 shadow-[0_4px_20px_-2px_rgba(28,82,83,0.08)] transition-all duration-300 hover:border-primary hover:shadow-lg",
+        isPro && "border-primary-container/25",
         className
       )}
       onClick={handleViewDetails}
@@ -55,6 +69,12 @@ export default function PromptCard({ prompt, className }) {
     >
       <div className="mb-4 flex items-start justify-between gap-3">
         <div className="flex flex-wrap gap-2">
+          {isPro && (
+            <span className="inline-flex items-center gap-1 rounded-md bg-primary-container/15 px-2 py-1 text-[12px] font-semibold text-primary-container">
+              <Crown className="h-3 w-3" strokeWidth={2} />
+              Pro
+            </span>
+          )}
           <span className="rounded-md bg-surface-container-highest px-2 py-1 text-[12px] font-semibold text-on-surface">
             {prompt.category}
           </span>
@@ -75,8 +95,18 @@ export default function PromptCard({ prompt, className }) {
       </h3>
 
       {previewText && (
-        <div className="mb-4 rounded-lg bg-primary/5 p-3 font-mono text-sm leading-relaxed text-on-surface-variant line-clamp-3">
-          {previewText}
+        <div className="relative mb-4 overflow-hidden rounded-lg bg-primary/5 p-3 font-mono text-sm leading-relaxed text-on-surface-variant">
+          <p className={cn("line-clamp-3", contentLocked && "select-none blur-[5px]")}>
+            {previewText}
+          </p>
+          {contentLocked && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/35">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[12px] font-semibold text-primary shadow-sm">
+                <Lock className="h-3.5 w-3.5" strokeWidth={2} />
+                Pro — Premium required
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -111,7 +141,7 @@ export default function PromptCard({ prompt, className }) {
         }}
         className="mt-4 w-full rounded-lg bg-surface-variant py-2 text-[14px] font-medium text-on-surface-variant transition-colors group-hover:bg-primary group-hover:text-on-primary"
       >
-        View Details
+        {actionLabel}
       </button>
     </article>
   );

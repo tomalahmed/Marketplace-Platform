@@ -68,20 +68,46 @@ export function extractPlaceholders(content = "") {
   return [...new Set(matches.map((match) => match.slice(1, -1)))];
 }
 
+export function getViewerUserId(user) {
+  if (!user) return null;
+  return String(user._id || user.id || "");
+}
+
+/** Premium-gated listing (creator publish setting). Not the same as difficulty level. */
+export function isProPrompt(prompt) {
+  if (!prompt) return false;
+  return prompt.visibility === "private" || Boolean(prompt.isPro);
+}
+
 export function isPromptContentLocked(prompt, user) {
   if (!prompt) return false;
+
+  if (!isProPrompt(prompt)) {
+    return Boolean(prompt.contentLocked);
+  }
 
   const creatorId =
     typeof prompt.creator === "object"
       ? prompt.creator?._id
       : prompt.creator;
 
-  const isOwner =
-    user && creatorId && String(creatorId) === String(user.id || user._id);
+  const viewerId = getViewerUserId(user);
+  const isOwner = viewerId && creatorId && viewerId === String(creatorId);
   const isAdmin = user?.role === "admin";
 
-  if (isOwner || isAdmin) return false;
-  if (prompt.visibility === "private" && !user?.isPremium) return true;
+  if (isOwner || isAdmin || user?.isPremium) return false;
+  return true;
+}
 
-  return Boolean(prompt.contentLocked);
+export function getPromptPreviewText(prompt, user) {
+  const locked = isPromptContentLocked(prompt, user);
+
+  if (locked) {
+    return (
+      prompt?.contentPreview ||
+      "Premium prompt — sign in and upgrade to unlock full content."
+    );
+  }
+
+  return prompt?.content || prompt?.contentPreview || prompt?.description || "";
 }

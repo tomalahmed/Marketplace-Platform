@@ -7,6 +7,8 @@ import {
   Brush,
   Code2,
   Copy,
+  Crown,
+  Lock,
   MessageSquare,
   Palette,
   Sparkles,
@@ -14,6 +16,11 @@ import {
 } from "lucide-react";
 import useAuth from "@/hooks/useAuth";
 import { formatCopyCount } from "@/lib/promptConstants";
+import {
+  getPromptPreviewText,
+  isProPrompt,
+  isPromptContentLocked,
+} from "@/lib/promptUtils";
 import { cn } from "@/lib/cn";
 
 const toolIcons = {
@@ -34,7 +41,9 @@ export default function FeaturedPromptCard({ prompt, className }) {
   const router = useRouter();
   const { user } = useAuth();
   const ToolIcon = getToolIcon(prompt.aiTool);
-  const previewText = prompt.content || prompt.description || "";
+  const isPro = isProPrompt(prompt);
+  const contentLocked = isPromptContentLocked(prompt, user);
+  const previewText = getPromptPreviewText(prompt, user);
 
   const handleViewDetails = () => {
     const destination = `/prompts/${prompt._id}`;
@@ -50,13 +59,22 @@ export default function FeaturedPromptCard({ prompt, className }) {
       whileHover={{ y: -6 }}
       className={cn(
         "card-shadow card-hover flex h-full flex-col rounded-xl border border-outline-variant/10 bg-white p-6 transition-all",
+        isPro && "border-primary-container/25",
         className
       )}
     >
       <div className="mb-4 flex items-start justify-between gap-3">
-        <span className="rounded-full border border-tertiary-fixed-dim/50 bg-tertiary-fixed px-3 py-1 text-[12px] font-semibold text-on-tertiary-fixed">
-          {prompt.category}
-        </span>
+        <div className="flex flex-wrap gap-2">
+          {isPro && (
+            <span className="inline-flex items-center gap-1 rounded-full border border-primary-container/30 bg-primary-container/10 px-2.5 py-0.5 text-[11px] font-semibold text-primary-container">
+              <Crown className="h-3 w-3" strokeWidth={2} />
+              Pro
+            </span>
+          )}
+          <span className="rounded-full border border-tertiary-fixed-dim/50 bg-tertiary-fixed px-3 py-1 text-[12px] font-semibold text-on-tertiary-fixed">
+            {prompt.category}
+          </span>
+        </div>
         <span className="text-primary-container" title={prompt.aiTool}>
           <ToolIcon className="h-6 w-6" strokeWidth={1.75} />
         </span>
@@ -67,8 +85,18 @@ export default function FeaturedPromptCard({ prompt, className }) {
       </h3>
 
       {previewText && (
-        <div className="mb-6 rounded-lg bg-surface-container-high/30 p-4 font-mono text-sm leading-relaxed text-on-surface-variant line-clamp-3">
-          {previewText}
+        <div className="relative mb-6 overflow-hidden rounded-lg bg-surface-container-high/30 p-4 font-mono text-sm leading-relaxed text-on-surface-variant">
+          <p className={cn("line-clamp-3", contentLocked && "select-none blur-[5px]")}>
+            {previewText}
+          </p>
+          {contentLocked && (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center bg-white/35">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1 text-[11px] font-semibold text-primary shadow-sm">
+                <Lock className="h-3 w-3" strokeWidth={2} />
+                Pro — Premium required
+              </span>
+            </div>
+          )}
         </div>
       )}
 
@@ -102,7 +130,7 @@ export default function FeaturedPromptCard({ prompt, className }) {
           onClick={handleViewDetails}
           className="text-[14px] font-medium text-primary-container transition-colors hover:text-primary hover:underline"
         >
-          View Details
+          {!user ? "Sign in" : contentLocked ? "Unlock" : "View Details"}
         </button>
       </div>
     </motion.article>

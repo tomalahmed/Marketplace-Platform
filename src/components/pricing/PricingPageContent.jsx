@@ -10,7 +10,7 @@ import FadeUp from "@/components/shared/FadeUp";
 import Button from "@/components/ui/Button";
 import Spinner from "@/components/ui/Spinner";
 import useAuth from "@/hooks/useAuth";
-import { useCreateCheckoutSession } from "@/hooks/usePayment";
+import { useCreateCheckoutSession, useVerifyCheckoutSession } from "@/hooks/usePayment";
 import { getApiErrorMessage } from "@/lib/apiErrors";
 import { PREMIUM_RETURN_STORAGE_KEY } from "@/lib/premiumCheckout";
 import { getStripe } from "@/lib/stripe";
@@ -44,6 +44,7 @@ export default function PricingPageContent() {
   const searchParams = useSearchParams();
   const { user, loading, refetchUser } = useAuth();
   const checkoutMutation = useCreateCheckoutSession();
+  const verifyMutation = useVerifyCheckoutSession();
   const queryClient = useQueryClient();
   const handledPaymentRef = useRef(false);
 
@@ -68,10 +69,21 @@ export default function PricingPageContent() {
     handledPaymentRef.current = true;
 
     const completePayment = async () => {
-      toast.success("Premium unlocked! Enjoy private prompts and full access.");
+      const sessionId = searchParams.get("session_id");
+
+      try {
+        if (sessionId) {
+          await verifyMutation.mutateAsync(sessionId);
+        }
+      } catch (error) {
+        console.warn("Session verify fallback:", error);
+      }
+
       await refetchUser();
       await queryClient.invalidateQueries({ queryKey: ["prompt"] });
       await queryClient.invalidateQueries({ queryKey: ["prompts"] });
+
+      toast.success("Premium unlocked! Enjoy private prompts and full access.");
 
       const returnTo =
         sessionStorage.getItem(PREMIUM_RETURN_STORAGE_KEY) || "/prompts";
@@ -80,7 +92,7 @@ export default function PricingPageContent() {
     };
 
     completePayment();
-  }, [searchParams, refetchUser, router, queryClient]);
+  }, [searchParams, refetchUser, router, queryClient, verifyMutation]);
 
   const handleSubscribe = async () => {
     if (!user) {

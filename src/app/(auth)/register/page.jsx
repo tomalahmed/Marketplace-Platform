@@ -9,6 +9,7 @@ import { AuthField, AuthInput } from "@/components/auth/AuthField";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import useAuth from "@/hooks/useAuth";
 import { getDashboardPath } from "@/utils/roleRedirect";
+import { CONTACT_EMAIL, getContactMailto } from "@/lib/contact";
 
 function getErrorMessage(error) {
   return (
@@ -186,6 +187,16 @@ export default function RegisterPage() {
             <Link href="/demo" className="font-semibold text-primary hover:underline">
               Try a demo account instead
             </Link>
+          </p>
+          <p className="text-[14px] text-on-surface-variant">
+            Want to publish prompts?{" "}
+            <a
+              href={getContactMailto("Creator access request")}
+              className="font-semibold text-primary hover:underline"
+            >
+              Contact {CONTACT_EMAIL}
+            </a>{" "}
+            to request creator access.
           </p>
         </div>
 

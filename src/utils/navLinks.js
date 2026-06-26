@@ -2,22 +2,19 @@ import { getDashboardPath } from "@/utils/roleRedirect";
 
 const HOME = { href: "/", label: "Home", exact: true };
 const MARKETPLACE = { href: "/prompts", label: "Marketplace" };
+const ABOUT = { href: "/about", label: "About" };
 const CREATORS = { href: "/#top-creators", label: "Creators", hash: true };
 const PREMIUM = { href: "/pricing", label: "Premium" };
 
-export const PUBLIC_NAV_LINKS = [HOME, MARKETPLACE, CREATORS, PREMIUM];
+export const PUBLIC_NAV_LINKS = [HOME, MARKETPLACE, ABOUT, CREATORS, PREMIUM];
 
-/** Logged-in users see a clean public nav; role tools live in each dashboard sidebar. */
+/** Logged-in users: Home and Marketplace only; role tools live in each dashboard sidebar. */
 const AUTH_PUBLIC_NAV = [HOME, MARKETPLACE];
 
 export function getMainNavLinks(user) {
   if (!user) return PUBLIC_NAV_LINKS;
 
-  const links = [...AUTH_PUBLIC_NAV];
-  if (!user.isPremium && user.role !== "admin") {
-    links.push(PREMIUM);
-  }
-  return links;
+  return AUTH_PUBLIC_NAV;
 }
 
 export function getDashboardLabel(role) {

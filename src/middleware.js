@@ -3,10 +3,6 @@ import { NextResponse } from "next/server";
 const AUTH_ROUTES = ["/login", "/register"];
 
 function isProtectedRoute(pathname) {
-  if (pathname === "/pricing" || pathname.startsWith("/pricing/")) {
-    return true;
-  }
-
   if (pathname.startsWith("/user")) return true;
   if (pathname.startsWith("/creator")) return true;
   if (pathname.startsWith("/admin")) return true;
@@ -37,8 +33,6 @@ export function middleware(request) {
 
 export const config = {
   matcher: [
-    "/pricing",
-    "/pricing/:path*",
     "/prompts/:id",
     "/user",
     "/user/:path*",

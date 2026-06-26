@@ -33,6 +33,8 @@ import {
   extractPlaceholders,
   formatPromptDate,
   getInitials,
+  getPromptPreviewText,
+  isProPrompt,
   isPromptContentLocked,
 } from "@/lib/promptUtils";
 import { setPremiumReturnTo } from "@/lib/premiumCheckout";
@@ -74,8 +76,9 @@ export default function PromptDetailPage() {
 
   const prompt = data?.data;
   const contentLocked = prompt ? isPromptContentLocked(prompt, user) : false;
-  const displayContent =
-    prompt?.content || prompt?.contentPreview || "Premium prompt content locked.";
+  const displayContent = contentLocked
+    ? getPromptPreviewText(prompt, user)
+    : prompt?.content || prompt?.contentPreview || "";
 
   const { data: similarData } = usePrompts(
     { category: prompt?.category, limit: 4, page: 1 },
@@ -241,10 +244,10 @@ export default function PromptDetailPage() {
                 <BarChart3 className="h-4 w-4" strokeWidth={1.75} />
                 {prompt.difficulty}
               </span>
-              {prompt.visibility === "private" && (
-                <span className="flex items-center gap-1 rounded-full bg-amber-100 px-3 py-1 text-[12px] font-semibold text-amber-800">
+              {isProPrompt(prompt) && (
+                <span className="flex items-center gap-1 rounded-full bg-primary-container/15 px-3 py-1 text-[12px] font-semibold text-primary-container">
                   <Crown className="h-3.5 w-3.5" strokeWidth={2} />
-                  Premium
+                  Pro
                 </span>
               )}
             </div>
@@ -311,11 +314,11 @@ export default function PromptDetailPage() {
                     <Lock className="h-7 w-7" strokeWidth={1.75} />
                   </div>
                   <h3 className="mb-2 text-[18px] font-semibold text-primary">
-                    Premium Content Locked
+                    Pro Content Locked
                   </h3>
                   <p className="mb-5 max-w-sm text-[14px] text-on-surface-variant">
-                    Subscribe to Premium to unlock private prompts, copy content,
-                    and leave reviews.
+                    Upgrade to Premium to unlock this Pro prompt, copy the full
+                    content, and leave reviews.
                   </p>
                   <Link
                     href="/pricing"

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { FileText, Plus } from "lucide-react";
+import { Crown, FileText, Plus } from "lucide-react";
 import Link from "next/link";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
@@ -78,17 +78,25 @@ export default function CreatorPromptTable({
                 className="border-b border-outline-variant/10 transition-colors last:border-0 hover:bg-surface-container-low/40"
               >
                 <td className="px-5 py-4 font-medium text-on-surface">
-                  {compact && onView ? (
-                    <button
-                      type="button"
-                      onClick={() => onView(prompt)}
-                      className="text-left font-medium text-primary hover:underline"
-                    >
-                      {prompt.title}
-                    </button>
-                  ) : (
-                    prompt.title
-                  )}
+                  <div className="flex flex-wrap items-center gap-2">
+                    {compact && onView ? (
+                      <button
+                        type="button"
+                        onClick={() => onView(prompt)}
+                        className="text-left font-medium text-primary hover:underline"
+                      >
+                        {prompt.title}
+                      </button>
+                    ) : (
+                      <span>{prompt.title}</span>
+                    )}
+                    {prompt.visibility === "private" && (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-primary-container/12 px-2 py-0.5 text-[11px] font-semibold text-primary-container">
+                        <Crown className="h-3 w-3" strokeWidth={2} />
+                        Pro
+                      </span>
+                    )}
+                  </div>
                 </td>
                 <td className="px-5 py-4 text-on-surface-variant">{prompt.category}</td>
                 <td className="px-5 py-4">

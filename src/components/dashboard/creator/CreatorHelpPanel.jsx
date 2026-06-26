@@ -21,8 +21,8 @@ const FAQ_ITEMS = [
     a: "Yes. Open My Prompts, click Edit on any listing you own, and save your changes.",
   },
   {
-    q: "What is a private prompt?",
-    a: "Private prompts are visible only to Premium users. You need a Premium subscription to create them.",
+    q: "What is a Pro prompt?",
+    a: "Enable the Pro prompt toggle when publishing. The listing appears in the marketplace for everyone, but only Premium members can view and copy the full content. Free users see a locked preview.",
   },
 ];
 

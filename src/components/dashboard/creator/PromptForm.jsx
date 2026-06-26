@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Code2, FileText, Shapes, Upload } from "lucide-react";
+import { Code2, Crown, FileText, Shapes, Upload } from "lucide-react";
 import { toast } from "react-toastify";
 import RoleGuard from "@/components/shared/RoleGuard";
 import CreatorFormCard, {
@@ -115,7 +115,7 @@ export default function PromptForm({ promptId = null }) {
     }
   };
 
-  const isPublic = form.visibility === "public";
+  const isProPrompt = form.visibility === "private";
   const isPending = isEdit ? updatePrompt.isPending : createPrompt.isPending;
 
   if (isEdit && promptLoading) {
@@ -224,30 +224,48 @@ export default function PromptForm({ promptId = null }) {
                 onChange={(url) => updateField("thumbnail", url)}
               />
 
-              <div className="flex items-center justify-between gap-4 rounded-xl border border-outline-variant/15 bg-surface-container-low/50 px-4 py-3">
-                <div>
-                  <p className="text-[14px] font-semibold text-on-surface">Public Marketplace</p>
-                  <p className="text-[12px] text-on-surface-variant">
-                    {isPublic ? "Visible to everyone when approved" : "Premium-only private prompt"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={isPublic}
-                  onClick={() => updateField("visibility", isPublic ? "private" : "public")}
-                  className={`relative h-7 w-12 rounded-full transition-colors ${
-                    isPublic ? "bg-primary-container" : "bg-outline-variant/50"
-                  }`}
-                >
-                  <motion.span
-                    layout
-                    transition={{ type: "spring", stiffness: 500, damping: 30 }}
-                    className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm ${
-                      isPublic ? "left-[22px]" : "left-0.5"
+              <div className="rounded-xl border border-outline-variant/15 bg-surface-container-low/50 p-4">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
+                        isProPrompt
+                          ? "bg-primary-container text-on-primary"
+                          : "bg-surface-container-high text-on-surface-variant"
+                      }`}
+                    >
+                      <Crown className="h-5 w-5" strokeWidth={1.75} />
+                    </div>
+                    <div>
+                      <p className="text-[14px] font-semibold text-on-surface">Pro prompt</p>
+                      <p className="mt-0.5 text-[12px] leading-relaxed text-on-surface-variant">
+                        {isProPrompt
+                          ? "Only Premium members can view and copy full content. Free users see a locked preview."
+                          : "Public listing — all signed-in users can view full content when approved."}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={isProPrompt}
+                    aria-label="Mark as Pro prompt"
+                    onClick={() =>
+                      updateField("visibility", isProPrompt ? "public" : "private")
+                    }
+                    className={`relative h-7 w-12 shrink-0 rounded-full transition-colors ${
+                      isProPrompt ? "bg-primary-container" : "bg-outline-variant/50"
                     }`}
-                  />
-                </button>
+                  >
+                    <motion.span
+                      layout
+                      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+                      className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow-sm ${
+                        isProPrompt ? "left-[22px]" : "left-0.5"
+                      }`}
+                    />
+                  </button>
+                </div>
               </div>
 
               <div>
