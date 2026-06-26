@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import { toast } from "react-toastify";
 import useAuth from "@/hooks/useAuth";
+import { isDemoAccount } from "@/lib/demoAccounts";
 import { getDashboardPath } from "@/utils/roleRedirect";
 
 const navLinks = [
@@ -40,6 +41,7 @@ export default function Navbar() {
   };
 
   const dashboardPath = user ? getDashboardPath(user.role) : "/user";
+  const isDemoUser = user ? isDemoAccount(user.email) : false;
 
   return (
     <>
@@ -74,6 +76,14 @@ export default function Navbar() {
           <div className="hidden items-center gap-4 md:flex">
             {!loading && user ? (
               <>
+                {isDemoUser && (
+                  <span
+                    className="rounded-full bg-amber-100 px-2.5 py-1 text-[11px] font-semibold text-amber-800"
+                    title="Demo sandbox — seeded data only"
+                  >
+                    Demo mode
+                  </span>
+                )}
                 <Link
                   href={dashboardPath}
                   className="text-[14px] font-medium text-on-surface-variant transition-colors hover:text-primary"
@@ -144,6 +154,11 @@ export default function Navbar() {
             <hr className="my-1 border-outline-variant/30" />
             {!loading && user ? (
               <>
+                {isDemoUser && (
+                  <span className="rounded-lg bg-amber-100 px-3 py-2 text-[12px] font-semibold text-amber-800">
+                    Demo sandbox — seeded data only
+                  </span>
+                )}
                 <Link
                   href={dashboardPath}
                   onClick={() => setMobileOpen(false)}

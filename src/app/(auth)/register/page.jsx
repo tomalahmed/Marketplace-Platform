@@ -171,14 +171,20 @@ export default function RegisterPage() {
           </button>
         </form>
 
-        <div className="mt-5 text-center">
+        <div className="mt-5 space-y-2 text-center">
           <p className="text-[15px] text-on-surface-variant">
             Already have an account?{" "}
             <Link
               href="/login"
               className="font-semibold text-primary hover:underline"
             >
-              Login
+              Sign in
+            </Link>
+          </p>
+          <p className="text-[14px] text-on-surface-variant">
+            Just exploring?{" "}
+            <Link href="/demo" className="font-semibold text-primary hover:underline">
+              Try a demo account instead
             </Link>
           </p>
         </div>

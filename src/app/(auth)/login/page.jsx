@@ -2,13 +2,17 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { ArrowRight, Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { toast } from "react-toastify";
 import { AuthField, AuthInput } from "@/components/auth/AuthField";
 import GoogleAuthButton from "@/components/auth/GoogleAuthButton";
 import useAuth from "@/hooks/useAuth";
 import { getDashboardPath } from "@/utils/roleRedirect";
+import {
+  DEMO_PASSWORD,
+  getDemoAccountByEmail,
+} from "@/lib/demoAccounts";
 
 function getErrorMessage(error) {
   return (
@@ -27,6 +31,8 @@ function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [demoAccount, setDemoAccount] = useState(null);
+  const autoLoginAttempted = useRef(false);
 
   const redirectPath =
     searchParams.get("redirect") || (user ? getDashboardPath(user.role) : null);
@@ -36,6 +42,40 @@ function LoginForm() {
       router.replace(redirectPath || getDashboardPath(user.role));
     }
   }, [loading, user, router, redirectPath]);
+
+  useEffect(() => {
+    if (loading || user) return;
+
+    const isDemo = searchParams.get("demo") === "1";
+    const demoEmail = searchParams.get("email")?.trim().toLowerCase();
+    const shouldAutoLogin = searchParams.get("auto") === "1";
+
+    if (!isDemo || !demoEmail) return;
+
+    setEmail(demoEmail);
+    setPassword(DEMO_PASSWORD);
+    setDemoAccount(getDemoAccountByEmail(demoEmail) || { email: demoEmail, name: demoEmail });
+
+    if (!shouldAutoLogin || autoLoginAttempted.current) return;
+
+    autoLoginAttempted.current = true;
+
+    const runDemoLogin = async () => {
+      setSubmitting(true);
+      try {
+        const data = await login({ email: demoEmail, password: DEMO_PASSWORD });
+        toast.success(`Signed in as demo ${data.data.role}`);
+        router.push(searchParams.get("redirect") || getDashboardPath(data.data.role));
+      } catch (error) {
+        autoLoginAttempted.current = false;
+        toast.error(getErrorMessage(error));
+      } finally {
+        setSubmitting(false);
+      }
+    };
+
+    runDemoLogin();
+  }, [loading, user, searchParams, login, router]);
 
   const navigateAfterAuth = (role) => {
     router.push(searchParams.get("redirect") || getDashboardPath(role));
@@ -90,6 +130,21 @@ function LoginForm() {
       </div>
 
       <div className="rounded-2xl border border-outline-variant/10 bg-white p-7 shadow-[0_4px_24px_-4px_rgba(28,82,83,0.1)] md:p-8">
+        {demoAccount && (
+          <div className="mb-5 rounded-xl border border-primary-container/20 bg-primary-container/10 px-4 py-3 text-[13px] text-on-surface-variant">
+            <p className="font-semibold text-primary">
+              Demo account: {demoAccount.name || demoAccount.email}
+            </p>
+            <p className="mt-1">
+              Email and password are filled in for you. Click Login or wait a moment
+              for automatic sign-in.
+            </p>
+            <Link href="/demo" className="mt-2 inline-block font-semibold text-primary-container hover:underline">
+              Choose a different demo account
+            </Link>
+          </div>
+        )}
+
         <form className="space-y-5" onSubmit={handleSubmit}>
           <AuthField label="Email" htmlFor="email">
             <AuthInput
@@ -166,14 +221,20 @@ function LoginForm() {
         />
       </div>
 
-      <div className="mt-6 text-center">
+      <div className="mt-6 space-y-3 text-center">
         <p className="text-[15px] text-on-surface-variant">
           Don&apos;t have an account?{" "}
           <Link
             href="/register"
             className="font-semibold text-primary hover:underline"
           >
-            Register here
+            Create a free account
+          </Link>
+        </p>
+        <p className="text-[14px] text-on-surface-variant">
+          Evaluating the app?{" "}
+          <Link href="/demo" className="font-semibold text-primary hover:underline">
+            Try a demo account
           </Link>
         </p>
       </div>

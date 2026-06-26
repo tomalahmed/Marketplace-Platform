@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import {
   ArrowRight,
@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 import FadeUp from "@/components/shared/FadeUp";
 import Button from "@/components/ui/Button";
 import {
+  buildDemoLoginUrl,
   DEMO_ACCOUNTS,
   DEMO_FEATURES,
   DEMO_PASSWORD,
@@ -39,20 +40,45 @@ async function copyText(value, label) {
 }
 
 export default function DemoPageContent() {
+  const router = useRouter();
+
+  const startDemoLogin = (account, { autoLogin = true, redirect } = {}) => {
+    const url = buildDemoLoginUrl({
+      email: account.email,
+      redirect: redirect || account.dashboard,
+      autoLogin,
+    });
+    router.push(url);
+  };
+
+  const openFeature = (feature) => {
+    if (feature.demoEmail) {
+      router.push(
+        buildDemoLoginUrl({
+          email: feature.demoEmail,
+          redirect: feature.redirect,
+        })
+      );
+      return;
+    }
+
+    router.push(feature.href);
+  };
+
   return (
     <div className="mx-auto max-w-[960px] px-4 py-12 md:px-10 md:py-16">
       <FadeUp className="mb-10 text-center">
         <span className="mb-4 inline-flex items-center gap-2 rounded-full border border-primary-container/20 bg-primary-container/10 px-4 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-primary-container">
           <Sparkles className="h-3.5 w-3.5" strokeWidth={2} />
-          Live Demo
+          Demo Sandbox
         </span>
         <h1 className="mb-4 text-[32px] font-bold text-primary md:text-[40px]">
-          Try PromptGrowth
+          Try PromptGrowth with demo accounts
         </h1>
         <p className="mx-auto max-w-2xl text-[17px] leading-relaxed text-on-surface-variant">
-          Use the demo accounts below to log in and explore the marketplace,
-          premium locks, prompt details, and role-based dashboards. All accounts
-          share the same password.
+          Demo logins use a separate sandbox. You will only see seeded demo prompts,
+          reviews, and users — never real registered accounts or their content.
+          Click an account to sign in instantly.
         </p>
       </FadeUp>
 
@@ -67,21 +93,17 @@ export default function DemoPageContent() {
                 <h2 className="text-[18px] font-semibold text-on-surface">
                   Shared demo password
                 </h2>
-                <p className="font-mono text-[20px] font-bold text-primary">
-                  {DEMO_PASSWORD}
-                </p>
+                <p className="font-mono text-[20px] font-bold text-primary">{DEMO_PASSWORD}</p>
               </div>
             </div>
-            <Button
-              variant="outline"
-              onClick={() => copyText(DEMO_PASSWORD, "Password")}
-            >
+            <Button variant="outline" onClick={() => copyText(DEMO_PASSWORD, "Password")}>
               <Copy className="h-4 w-4" strokeWidth={1.75} />
               Copy password
             </Button>
           </div>
           <p className="mt-4 text-[14px] text-on-surface-variant">
-            Run <code className="rounded bg-surface-container-high px-1.5 py-0.5 text-[13px]">npm run seed</code> on the server if accounts are missing.
+            Run <code className="rounded bg-surface-container-high px-1.5 py-0.5 text-[13px]">npm run seed</code> on the server if demo accounts are missing.
+            Real users should use <strong>Register</strong> from the main site header instead.
           </p>
         </section>
       </FadeUp>
@@ -115,9 +137,7 @@ export default function DemoPageContent() {
                       </span>
                     )}
                   </div>
-                  <p className="text-[15px] text-on-surface-variant">
-                    {account.description}
-                  </p>
+                  <p className="text-[15px] text-on-surface-variant">{account.description}</p>
                 </div>
               </div>
 
@@ -135,12 +155,17 @@ export default function DemoPageContent() {
                     <Copy className="h-3.5 w-3.5" strokeWidth={1.75} />
                     Copy email
                   </Button>
-                  <Link href={`/login?redirect=${encodeURIComponent(account.dashboard)}`}>
-                    <Button size="sm">
-                      Log in as {account.role}
-                      <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
-                    </Button>
-                  </Link>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => startDemoLogin(account, { autoLogin: false })}
+                  >
+                    Open login form
+                  </Button>
+                  <Button size="sm" onClick={() => startDemoLogin(account)}>
+                    Try {account.role} account
+                    <ArrowRight className="h-3.5 w-3.5" strokeWidth={2} />
+                  </Button>
                 </div>
               </div>
 
@@ -192,11 +217,37 @@ export default function DemoPageContent() {
                   </div>
                   <p className="text-[13px] text-on-surface-variant">{prompt.note}</p>
                 </div>
-                <Link href={`/login?redirect=${encodeURIComponent(`/prompts/${prompt.id}`)}`}>
-                  <Button size="sm" variant="outline">
-                    View prompt
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() =>
+                      router.push(
+                        buildDemoLoginUrl({
+                          email: prompt.demoEmail,
+                          redirect: `/prompts/${prompt.id}`,
+                        })
+                      )
+                    }
+                  >
+                    View as demo user
                   </Button>
-                </Link>
+                  {prompt.premiumDemoEmail && (
+                    <Button
+                      size="sm"
+                      onClick={() =>
+                        router.push(
+                          buildDemoLoginUrl({
+                            email: prompt.premiumDemoEmail,
+                            redirect: `/prompts/${prompt.id}`,
+                          })
+                        )
+                      }
+                    >
+                      View unlocked (premium)
+                    </Button>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -210,20 +261,21 @@ export default function DemoPageContent() {
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {DEMO_FEATURES.map((feature) => (
-              <Link
-                key={feature.href}
-                href={feature.href}
-                className="flex items-center justify-between rounded-xl border border-outline-variant/15 px-4 py-3 text-[14px] font-medium text-on-surface transition-colors hover:border-primary-container/30 hover:bg-surface-container-low"
+              <button
+                key={feature.label}
+                type="button"
+                onClick={() => openFeature(feature)}
+                className="flex items-center justify-between rounded-xl border border-outline-variant/15 px-4 py-3 text-left text-[14px] font-medium text-on-surface transition-colors hover:border-primary-container/30 hover:bg-surface-container-low"
               >
                 {feature.label}
                 <ArrowRight className="h-4 w-4 text-primary-container" strokeWidth={2} />
-              </Link>
+              </button>
             ))}
           </div>
           <p className="mt-6 flex items-start gap-2 text-[13px] text-on-surface-variant">
             <Shield className="mt-0.5 h-4 w-4 shrink-0 text-primary-container" strokeWidth={1.75} />
-            Demo data is for evaluation only. Do not use real passwords or production
-            credentials on this environment.
+            Demo sessions are isolated from production user data. Sign out when finished,
+            or use Register from the main navbar for a real account.
           </p>
         </section>
       </FadeUp>
