@@ -20,6 +20,20 @@ function getErrorMessage(error) {
     return "Cannot reach the server. Check your connection and try again.";
   }
 
+  if (error?.response?.status === 503) {
+    return (
+      error?.response?.data?.message ||
+      "Google sign-in is not configured on the server. Contact support."
+    );
+  }
+
+  if (error?.response?.status === 401) {
+    return (
+      error?.response?.data?.message ||
+      "Google sign-in could not be verified. Check Firebase configuration on the server."
+    );
+  }
+
   if (error?.code?.startsWith("auth/")) {
     if (error.code === "auth/account-exists-with-different-credential") {
       return "This email is already registered. Sign in with email and password instead.";
